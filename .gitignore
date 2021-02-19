@@ -4,3 +4,4 @@ appsettings.json
 *.db
 SeedData
 wwwroot
+assets
