@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data {
     public class StoreContext : DbContext {
-        public StoreContext(DbContextOptions options) : base(options) { }
+        public StoreContext(DbContextOptions<StoreContext> options) : base(options) { }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<ProductBrand> ProductBrands { get; set; }
@@ -14,7 +14,7 @@ namespace Infrastructure.Data {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            // convert decimal to double 
+            // convert decimal to double to use with sqlite
             if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite") {
                 foreach (var entityType in modelBuilder.Model.GetEntityTypes()) {
                     var properties = entityType.ClrType.GetProperties().Where(p => p.PropertyType == typeof(decimal));

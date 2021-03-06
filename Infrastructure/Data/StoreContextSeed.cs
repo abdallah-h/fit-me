@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Data {
     public class StoreContextSeed {
+        // Seed data into database from json files.
         public static async Task SeedAsync(StoreContext storeContext, ILoggerFactory loggerFactory) {
             try {
                 if (!storeContext.ProductBrands.Any()) {
