@@ -8,17 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity {
-        private readonly StoreContext _context;
-        public GenericRepository(StoreContext context) {
-            _context = context;
+        private readonly StoreContext _storeContext;
+        public GenericRepository(StoreContext storeContext) {
+            _storeContext = storeContext;
         }
 
         public async Task<T> GetByIdAsync(int id) {
-            return await _context.Set<T>().FindAsync(id);
+            return await _storeContext.Set<T>().FindAsync(id);
         }
 
         public async Task<IReadOnlyList<T>> ListAllAsync() {
-            return await _context.Set<T>().ToListAsync();
+            return await _storeContext.Set<T>().ToListAsync();
         }
 
         public async Task<T> GetEntityWithSpec(ISpecification<T> spec) {
@@ -34,7 +34,20 @@ namespace Infrastructure.Data {
         }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec) {
-            return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
+            return SpecificationEvaluator<T>.GetQuery(_storeContext.Set<T>().AsQueryable(), spec);
+        }
+
+        public void Add(T entity) {
+            _storeContext.Set<T>().Add(entity);
+        }
+
+        public void Update(T entity) {
+            _storeContext.Set<T>().Attach(entity);
+            _storeContext.Entry(entity).State = EntityState.Modified;
+        }
+
+        public void Delete(T entity) {
+            _storeContext.Set<T>().Remove(entity);
         }
 
     }

@@ -9,9 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace API.Extensions {
     public static class ApplicationServicesExtensions {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services) {
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<ICartRepository, CartReopsitory>();
-            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IOrderService, OrderService>();
             services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
             services.Configure<ApiBehaviorOptions>(options => {
                 options.InvalidModelStateResponseFactory = actionContext => {

@@ -4,6 +4,7 @@ using Core.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data {
+    // checks for spec, add and apply spec to query to be returned 
     public class SpecificationEvaluator<TEntity> where TEntity : BaseEntity {
         public static IQueryable<TEntity> GetQuery(IQueryable<TEntity> inputQuery, ISpecification<TEntity> spec) {
             var query = inputQuery;
@@ -12,7 +13,7 @@ namespace Infrastructure.Data {
                 query = query.Where(spec.Criteria);
             }
 
-            // add orderby to query 
+            // add orderby to query if exist
             if (spec.OrderBy != null) {
                 query = query.OrderBy(spec.OrderBy);
             }

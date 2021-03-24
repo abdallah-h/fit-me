@@ -26,6 +26,8 @@ dotnet ef migrations add InitialCreate -p Infrastructure -s API -o Data/Migratio
 
 dotnet ef migrations add IdentityInitial -p Infrastructure -s API -o Identity/Migrations -c AppIdentityDbContext
 
+dotnet ef migrations add OrderEntityAdded -p Infrastructure -s API -c StoreContext
+
 // swagger
 dotnet add package Swashbuckle.AspNetCore.SwaggerGen
 dotnet add package Swashbuckle.AspNetCore.SwaggerUi

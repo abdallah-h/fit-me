@@ -4,6 +4,7 @@ using Core.Entities;
 using Microsoft.Extensions.Configuration;
 
 namespace API.Helpers {
+    // adding custom value resolver to config PictureUrl automapper
     public class ProductUrlResolver : IValueResolver<Product, ProductToReturnDto, string> {
         private readonly IConfiguration _config;
         public ProductUrlResolver(IConfiguration config) {
@@ -14,7 +15,6 @@ namespace API.Helpers {
             if (!string.IsNullOrEmpty(source.PictureUrl)) {
                 return _config["ApiUrl"] + source.PictureUrl;
             }
-
             return null;
         }
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Core.Entities;
+using Core.Entities.OrderAggregate;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Data {
@@ -13,8 +14,7 @@ namespace Infrastructure.Data {
         public static async Task SeedAsync(StoreContext storeContext, ILoggerFactory loggerFactory) {
             try {
                 if (!storeContext.ProductBrands.Any()) {
-                    var brandsData = File.ReadAllText("../Infrastructure/Data/SeedData/brands.json");
-                    var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsData);
+                    var brands = JsonSerializer.Deserialize<List<ProductBrand>>(SeedData("brands"));
                     foreach (var item in brands) {
                         storeContext.ProductBrands.Add(item);
                     }
@@ -22,8 +22,7 @@ namespace Infrastructure.Data {
                 }
 
                 if (!storeContext.ProductTypes.Any()) {
-                    var typesData = File.ReadAllText("../Infrastructure/Data/SeedData/types.json");
-                    var types = JsonSerializer.Deserialize<List<ProductType>>(typesData);
+                    var types = JsonSerializer.Deserialize<List<ProductType>>(SeedData("types"));
                     foreach (var item in types) {
                         storeContext.ProductTypes.Add(item);
                     }
@@ -31,10 +30,17 @@ namespace Infrastructure.Data {
                 }
 
                 if (!storeContext.Products.Any()) {
-                    var productsData = File.ReadAllText("../Infrastructure/Data/SeedData/products.json");
-                    var products = JsonSerializer.Deserialize<List<Product>>(productsData);
+                    var products = JsonSerializer.Deserialize<List<Product>>(SeedData("products"));
                     foreach (var item in products) {
                         storeContext.Products.Add(item);
+                    }
+                    await storeContext.SaveChangesAsync();
+                }
+
+                if (!storeContext.DeliveryMethods.Any()) {
+                    var deliveryMethods = JsonSerializer.Deserialize<List<DeliveryMethod>>(SeedData("delivery"));
+                    foreach (var item in deliveryMethods) {
+                        storeContext.DeliveryMethods.Add(item);
                     }
                     await storeContext.SaveChangesAsync();
                 }
@@ -42,6 +48,10 @@ namespace Infrastructure.Data {
                 var logger = loggerFactory.CreateLogger<StoreContextSeed>();
                 logger.LogError(ex.Message);
             }
+        }
+        private static string SeedData(string file) {
+            var data = File.ReadAllText("../Infrastructure/Data/SeedData/" + file + ".json");
+            return data;
         }
     }
 }
