@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart, ICart, ICartItem, ICartTotals } from '../shared/models/cart';
+import { IDeliveryMethod } from '../shared/models/deliveryMethod';
 import { IProduct } from '../shared/models/product';
 
 @Injectable({
@@ -15,8 +16,14 @@ export class ShoppingCartService {
   cart$ = this.cartSub.asObservable();
   private cartTotalSub = new BehaviorSubject<ICartTotals>(null);
   cartTotal$ = this.cartTotalSub.asObservable();
+  shipping = 0;
 
   constructor(private http: HttpClient) {}
+
+  setShippingPrice(deliveryMethod: IDeliveryMethod) {
+    this.shipping = deliveryMethod.price;
+    this.calculateTotals();
+  }
 
   getCart(id: string) {
     return this.http.get(this.baseUrl + 'cart?id=' + id).pipe(
@@ -64,24 +71,24 @@ export class ShoppingCartService {
   }
 
   decrementItemQuantity(item: ICartItem) {
-    const Cart = this.getCurrentCartValue();
-    const foundItemIndex = Cart.items.findIndex((x) => x.id === item.id);
-    if (Cart.items[foundItemIndex].quantity > 1) {
-      Cart.items[foundItemIndex].quantity--;
-      this.setCart(Cart);
+    const cart = this.getCurrentCartValue();
+    const foundItemIndex = cart.items.findIndex((x) => x.id === item.id);
+    if (cart.items[foundItemIndex].quantity > 1) {
+      cart.items[foundItemIndex].quantity--;
+      this.setCart(cart);
     } else {
       this.removeItemFromCart(item);
     }
   }
 
   removeItemFromCart(item: ICartItem) {
-    const Cart = this.getCurrentCartValue();
-    if (Cart.items.some((x) => x.id === item.id)) {
-      Cart.items = Cart.items.filter((i) => i.id !== item.id);
-      if (Cart.items.length > 0) {
-        this.setCart(Cart);
+    const cart = this.getCurrentCartValue();
+    if (cart.items.some((x) => x.id === item.id)) {
+      cart.items = cart.items.filter((i) => i.id !== item.id);
+      if (cart.items.length > 0) {
+        this.setCart(cart);
       } else {
-        this.deleteCart(Cart);
+        this.deleteCart(cart);
       }
     }
   }
@@ -99,9 +106,15 @@ export class ShoppingCartService {
     );
   }
 
+  deleteLocalCart(id: string) {
+    this.cartSub.next(null);
+    this.cartTotalSub.next(null);
+    localStorage.removeItem('cart_id');
+  }
+
   private calculateTotals() {
     const cart = this.getCurrentCartValue();
-    const shipping = 0;
+    const shipping = this.shipping;
     const subtotal = cart.items.reduce(
       (accTotal, item) => item.price * item.quantity + accTotal,
       0
